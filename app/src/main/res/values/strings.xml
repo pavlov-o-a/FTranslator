@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">FTranslator</string>
+    <string name="title_activity_main_service_launcher">MainServiceLauncherActivity</string>
+</resources>
