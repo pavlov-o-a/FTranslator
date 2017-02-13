@@ -12,8 +12,17 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.app.karbit.ftranslator.Presenter.PresenterModule;
+import com.app.karbit.ftranslator.Presenter.iPresenter;
 import com.app.karbit.ftranslator.R;
+
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import dagger.Component;
 
 /**
  * Created by Karbit on 12.02.2017.
@@ -22,20 +31,40 @@ import com.app.karbit.ftranslator.R;
 public class MainService extends Service {
     private WindowManager mWindowManager;
     private View mFloatingView;
-    WindowManager.LayoutParams mParams;
-    private RelativeLayout bigLayout;
-    private RelativeLayout smallLayout;
+    private WindowManager.LayoutParams mParams;
+    @Inject iPresenter presenter;
+
+    @BindView(R.id.big_layout)
+    protected RelativeLayout bigLayout;
+
+    @BindView(R.id.small_layout)
+    protected RelativeLayout smallLayout;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
+    @Component(modules = PresenterModule.class)
+    public interface MainServiceComponent{
+        void inject(MainService ms);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        initView();
+        MainServiceComponent msc = DaggerMainService_MainServiceComponent.builder()
+                .presenterModule(new PresenterModule()).build();
+        msc.inject(this);
+        Toast.makeText(mFloatingView.getContext(),presenter.getValue(),Toast.LENGTH_SHORT).show();
+    }
+
+    private void initView() {
         final Service service = this;
         mFloatingView = LayoutInflater.from(this).inflate(R.layout.main_layout, null);
+        ButterKnife.bind(this,mFloatingView);
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -51,8 +80,6 @@ public class MainService extends Service {
 
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mFloatingView, params);
-        bigLayout = (RelativeLayout) mFloatingView.findViewById(R.id.big_layout);
-        smallLayout = (RelativeLayout) mFloatingView.findViewById(R.id.small_layout);
 
         mFloatingView.findViewById(R.id.small_cancel_view).setOnClickListener(new View.OnClickListener() {
             @Override
