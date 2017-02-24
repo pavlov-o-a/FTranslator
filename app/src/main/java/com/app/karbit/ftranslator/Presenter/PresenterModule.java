@@ -1,5 +1,7 @@
 package com.app.karbit.ftranslator.Presenter;
 
+import com.app.karbit.ftranslator.Model.ModelFacade;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -8,7 +10,7 @@ import dagger.Provides;
  */
 @Module
 public class PresenterModule {
-    @Provides iPresenter getPresenter(){
-        return new Presenter();
+    @Provides iPresenter getPresenter(ModelFacade modelFacade){
+        return new Presenter(modelFacade);
     }
 }

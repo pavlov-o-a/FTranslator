@@ -3,6 +3,7 @@
     package="com.app.karbit.ftranslator">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -24,7 +25,8 @@
         <service
             android:name=".View.MainService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"/>
+        <activity android:name=".View.KeyboardActivity" android:theme="@style/Theme.Transparent"></activity>
     </application>
 
 </manifest>
