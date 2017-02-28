@@ -2,11 +2,17 @@ package com.app.karbit.ftranslator.Presenter;
 
 import android.widget.Toast;
 
+import com.app.karbit.ftranslator.Model.LanguageEntity;
 import com.app.karbit.ftranslator.Model.ModelFacade;
 import com.app.karbit.ftranslator.Model.TranslationEntity;
 import com.app.karbit.ftranslator.Model.TranslationManager;
+import com.app.karbit.ftranslator.Presenter.observes.LanguagesObserver;
 import com.app.karbit.ftranslator.Presenter.observes.TranslationEntityObserver;
 import com.app.karbit.ftranslator.View.iService;
+
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Observer;
 
 import javax.inject.Inject;
 
@@ -17,9 +23,12 @@ import javax.inject.Inject;
 public class Presenter implements iPresenter, iObserversInterface{
     iService service;
     ModelFacade modelFacade;
+    Observer languagesObserver;
+    TranslationManager translationManager;
 
     @Inject Presenter(ModelFacade modelFacade){
         this.modelFacade = modelFacade;
+        translationManager = modelFacade.getTranslationManager();
     }
 
     @Override
@@ -34,14 +43,27 @@ public class Presenter implements iPresenter, iObserversInterface{
 
     @Override
     public void getTranslation(TranslationEntity entity) {
-        TranslationManager manager = modelFacade.getTranslationManager();
-        manager.setSubscriber(new TranslationEntityObserver(this));
-        manager.translate(entity);
+        translationManager.translate(entity, new TranslationEntityObserver(this));
     }
+
+    @Override
+    public void getLanguages(Observer observer) {
+        languagesObserver = observer;
+        translationManager.getLanguages(new LanguagesObserver(this), Locale.getDefault().getDisplayLanguage());
+    }
+
+    // ----------- observers callbacks ----------
 
     @Override
     public void showTranslation(TranslationEntity entity) {
         service.showTranslation(entity);
+    }
+
+    @Override
+    public void showLanguages(ArrayList<LanguageEntity> languageEntities) {
+        if (languagesObserver != null){
+            languagesObserver.update(null,languageEntities);
+        }
     }
 
     @Override

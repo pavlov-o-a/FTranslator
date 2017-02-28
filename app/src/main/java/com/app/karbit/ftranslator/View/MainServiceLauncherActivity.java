@@ -25,7 +25,7 @@ public class MainServiceLauncherActivity extends AppCompatActivity {
                 finish();
             }
         });
-        SharedPreferences preferences = getSharedPreferences("screen_resolution",MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("FTRANSLATOR_PREFERENCES",MODE_PRIVATE);
         if (!preferences.contains("screen_width")){
             Display display = getWindowManager().getDefaultDisplay();
             Point point = new Point();

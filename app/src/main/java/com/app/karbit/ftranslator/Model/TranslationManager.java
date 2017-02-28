@@ -1,8 +1,7 @@
 package com.app.karbit.ftranslator.Model;
 
-import com.app.karbit.ftranslator.Presenter.observes.TranslationEntityObserver;
-
 import java.io.IOException;
+import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -19,27 +18,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class TranslationManager {
-    Observer<TranslationEntity> subscriber;
-    Retrofit retrofit;
+    YandexTranslatorApi translatorApi;
     final String KEY = "trnsl.1.1.20170218T180441Z.7406683044641478.9a2625e19fcfb8c3af76021448f327d2c7901e98";
 
     public TranslationManager(){
-        retrofit = new Retrofit.Builder().baseUrl("https://translate.yandex.net/")
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://translate.yandex.net/")
                 .addConverterFactory(GsonConverterFactory.create()).build();
+        translatorApi = retrofit.create(YandexTranslatorApi.class);
     }
 
-    public void setSubscriber(TranslationEntityObserver subscriber) {
-        this.subscriber = subscriber;
-    }
-
-    public void translate(final TranslationEntity entity) {
+    public void translate(final TranslationEntity entity, Observer<TranslationEntity> subscriber) {
         Observable<TranslationEntity> observable = Observable.create(new ObservableOnSubscribe<TranslationEntity>() {
             @Override
             public void subscribe(ObservableEmitter<TranslationEntity> e) throws Exception {
-                YandexTranslatorApi translatorApi = retrofit.create(YandexTranslatorApi.class);
+                String pairOfLanguages = entity.getFromLanguage() + "-" + entity.getToLanguage();
                 Response response = null;
                 try {
-                    response = translatorApi.getTranslation(KEY, entity.getFromText(), "ru-en").execute();
+                    response = translatorApi.getTranslation(KEY, entity.getFromText(), pairOfLanguages).execute();
                 } catch (IOException exc){
                     e.onNext(entity);
                 }
@@ -49,5 +44,24 @@ public class TranslationManager {
             }
         });
         observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
+    }
+
+    public void getLanguages(final Observer<ArrayList<LanguageEntity>>  languagesObserver, final String ui) {
+        Observable<ArrayList<LanguageEntity>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<LanguageEntity>>() {
+            @Override
+            public void subscribe(ObservableEmitter<ArrayList<LanguageEntity>> e) throws Exception {
+                Response response = null;
+                LanguagesAnswer la = new LanguagesAnswer();
+                try {
+                    response = translatorApi.getLanguages(KEY,ui).execute();
+                } catch (IOException exc){
+                    e.onError(new Exception("some error"));
+                }
+                if (response != null)
+                    la = (LanguagesAnswer) response.body();
+                e.onNext(la.getList());
+            }
+        });
+        observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(languagesObserver);
     }
 }

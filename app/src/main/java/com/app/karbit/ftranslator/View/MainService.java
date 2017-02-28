@@ -1,8 +1,10 @@
 package com.app.karbit.ftranslator.View;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -10,23 +12,26 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.karbit.ftranslator.Model.TranslationEntity;
 import com.app.karbit.ftranslator.Presenter.PresenterModule;
 import com.app.karbit.ftranslator.Presenter.iPresenter;
 import com.app.karbit.ftranslator.R;
 
+import java.util.Observer;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import dagger.Component;
 
 /**
@@ -43,6 +48,9 @@ public class MainService extends Service implements iService {
     private int accessCounter = 0;
     private String languageFrom;
     private String languageTo;
+    private String LANGUAGE_FROM_PREF = "language_from";
+    private String LANGUAGE_TO_PREF = "language_to";
+
 
     @Inject iPresenter presenter;
 
@@ -67,26 +75,28 @@ public class MainService extends Service implements iService {
     @BindView(R.id.extended_from_text)
     protected EditText userInput;
 
-    @BindView(R.id.extended_menu)
-    protected View menu;
+    @OnClick(R.id.extended_menu)
+    void showSettings(){
+        showAdvancedSettings();
+    }
 
     @BindView(R.id.extended_translated_text)
     protected TextView translatedText;
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    @BindView(R.id.extended_to_language)
+    protected TextView toLanguageLabel;
+
+    @BindView(R.id.extended_from_language)
+    protected TextView fromLanguageLabel;
+
+    @OnClick(R.id.extended_to_language)
+    void changeLanguage(){
+       showChooseLanguageDialog();
     }
 
-    @Override
-    public Context getContext() {
-        return mFloatingView.getContext();
-    }
-
-    @Override
-    public void showTranslation(TranslationEntity entity) {
-        translatedText.setText(entity.getToText());
+    @OnClick(R.id.extended_from_language)
+    void changeLanguage2(){
+        showChooseLanguageDialog();
     }
 
     @Component(modules = PresenterModule.class)
@@ -99,13 +109,32 @@ public class MainService extends Service implements iService {
         super.onCreate();
         initView();
 
+        //dagger initialization
         MainServiceComponent msc = DaggerMainService_MainServiceComponent.builder()
                 .presenterModule(new PresenterModule()).build();
         msc.inject(this);
-
         presenter.setBind(this);
 
-        Toast.makeText(mFloatingView.getContext(),presenter.getValue(),Toast.LENGTH_SHORT).show();
+        //foregrounding
+        Notification notification = new Notification.Builder(getContext())
+                .setContentTitle("Ftranslator")
+                .build();
+        startForeground(1445,notification);
+
+        //last used language
+        SharedPreferences sp = getSharedPreferences("FTRANSLATOR_PREFERENCES",MODE_PRIVATE);
+        setLanguages(sp.getString(LANGUAGE_FROM_PREF,"en"),sp.getString(LANGUAGE_TO_PREF,"de"));
+    }
+
+    private void showChooseLanguageDialog(){
+        ChooseLanguageDialog dialog = new ChooseLanguageDialog(getContext(),"en","ru",this);
+        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.show();
+    }
+
+    private void showAdvancedSettings() {
+
     }
 
     private void initView() {
@@ -141,14 +170,15 @@ public class MainService extends Service implements iService {
                 isCollapsed = true;
             }
         });
+        //it's needed for showing keyboard
         userInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setFocusedWindow(FOCUS,mParams.x,mParams.y,true,mFloatingView);
                 userInput.postDelayed(new Runnable() {
                     @Override
-                    public void run() {
-                        if (userInput != null) {
+                    public void run() {      //we have to wait until window will get new params and become focused,
+                        if (userInput != null) {            //before calling keyboard
                             userInput.requestFocus();
                             ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(userInput, InputMethodManager.SHOW_IMPLICIT);
                         }
@@ -164,12 +194,29 @@ public class MainService extends Service implements iService {
                 presenter.getTranslation(entity);
             }
         });
+        setFocusedWindow(FOCUS,mParams.x,mParams.y,true,mFloatingView);
+        extendedLayout.setVisibility(View.INVISIBLE);
+        userInput.postDelayed(new Runnable() {
+            @Override
+            public void run() { //it is needed for userinput got focus. so user mustn't click userinput twice in first time.
+                if (userInput != null) {
+                    userInput.requestFocus();
+                    extendedLayout.setVisibility(View.GONE);
+                }
+            }
+        },500);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (mFloatingView != null) mWindowManager.removeView(mFloatingView);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     public class DragListener implements View.OnTouchListener{
@@ -235,5 +282,35 @@ public class MainService extends Service implements iService {
         } else {
             accessCounter = 0;
         }
+    }
+
+    // ---------- interface methods ------------
+
+    @Override
+    public Context getContext() {
+        return mFloatingView.getContext();
+    }
+
+    @Override
+    public void showTranslation(TranslationEntity entity) {
+        translatedText.setText(entity.getToText());
+    }
+
+    @Override
+    public void setLanguages(String languageFrom, String languageTo) {
+        this.languageFrom = languageFrom;
+        this.languageTo = languageTo;
+        fromLanguageLabel.setText(languageFrom);
+        toLanguageLabel.setText(languageTo);
+        SharedPreferences sp = getSharedPreferences("FTRANSLATOR_PREFERENCES",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(LANGUAGE_FROM_PREF,languageFrom);
+        editor.putString(LANGUAGE_TO_PREF,languageTo);
+        editor.apply();
+    }
+
+    @Override
+    public void getLanguages(Observer observer) {
+        presenter.getLanguages(observer);
     }
 }

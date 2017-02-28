@@ -12,4 +12,7 @@ public interface YandexTranslatorApi {
 
     @POST("/api/v1.5/tr.json/translate")
     Call<TranslationEntity.GsonTranslationEntity> getTranslation(@Query("key") String key, @Query("text") String text, @Query("lang") String languages);
+
+    @POST("/api/v1.5/tr.json/getLangs")
+    Call<LanguagesAnswer> getLanguages(@Query("key") String key, @Query("ui") String ui);
 }
