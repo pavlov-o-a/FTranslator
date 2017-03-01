@@ -1,5 +1,7 @@
 package com.app.karbit.ftranslator.Model;
 
+import android.content.Context;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -18,6 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class TranslationManager {
+    static TranslationManager TManager = new TranslationManager();
     YandexTranslatorApi translatorApi;
     final String KEY = "trnsl.1.1.20170218T180441Z.7406683044641478.9a2625e19fcfb8c3af76021448f327d2c7901e98";
 
@@ -27,7 +30,7 @@ public class TranslationManager {
         translatorApi = retrofit.create(YandexTranslatorApi.class);
     }
 
-    public void translate(final TranslationEntity entity, Observer<TranslationEntity> subscriber) {
+    public void translate(final TranslationEntity entity, Observer<TranslationEntity> subscriber, final Context context) {
         Observable<TranslationEntity> observable = Observable.create(new ObservableOnSubscribe<TranslationEntity>() {
             @Override
             public void subscribe(ObservableEmitter<TranslationEntity> e) throws Exception {
@@ -36,14 +39,25 @@ public class TranslationManager {
                 try {
                     response = translatorApi.getTranslation(KEY, entity.getFromText(), pairOfLanguages).execute();
                 } catch (IOException exc){
-                    e.onNext(entity);
+                    e.onError(exc);
                 }
-                if (response != null)
+                if (response != null && response.body() != null) {
                     entity.setToText(((TranslationEntity.GsonTranslationEntity) response.body()).getText().get(0));
-                e.onNext(entity);
+                    e.onNext(entity);
+                    e.onComplete();
+                    cacheResult(entity, context);
+                } else {
+                    e.onError(new Exception("Something gone wrong"));
+                }
             }
         });
         observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
+    }
+
+    private void cacheResult(TranslationEntity entity, Context context) {
+        DataManager dm = DataManager.DManager;
+        dm.initDb(context);
+        dm.insertTranslationEntity(entity);
     }
 
     public void getLanguages(final Observer<ArrayList<LanguageEntity>>  languagesObserver, final String ui) {

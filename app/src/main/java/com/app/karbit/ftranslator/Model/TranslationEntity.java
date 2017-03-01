@@ -3,13 +3,27 @@ package com.app.karbit.ftranslator.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+
 import java.util.List;
 
 /**
  * Created by Karbit on 17.02.2017.
  */
 
+@Entity
 public class TranslationEntity {
+
+    @Id(autoincrement = true)
+    private Long id;
+
+    private String fromText;
+    private String toText;
+    private String fromLanguage;
+    private String toLanguage;
+
     public String getFromText() {
         return fromText;
     }
@@ -26,15 +40,29 @@ public class TranslationEntity {
         return toLanguage;
     }
 
-    private String fromText;
-
     public void setToText(String toText) {
         this.toText = toText;
     }
 
-    private String toText;
-    private String fromLanguage;
-    private String toLanguage;
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFromText(String fromText) {
+        this.fromText = fromText;
+    }
+
+    public void setFromLanguage(String fromLanguage) {
+        this.fromLanguage = fromLanguage;
+    }
+
+    public void setToLanguage(String toLanguage) {
+        this.toLanguage = toLanguage;
+    }
 
     public TranslationEntity(String fromText, String fromLanguage, String toLanguage){
         this.fromText = fromText;
@@ -42,11 +70,18 @@ public class TranslationEntity {
         this.toLanguage = toLanguage;
     }
 
-    public TranslationEntity(String fromText, String fromLanguage, String toLanguage, String toText){
+    @Generated(hash = 1420869241)
+    public TranslationEntity(Long id, String fromText, String toText, String fromLanguage,
+            String toLanguage) {
+        this.id = id;
         this.fromText = fromText;
+        this.toText = toText;
         this.fromLanguage = fromLanguage;
         this.toLanguage = toLanguage;
-        this.toText = toText;
+    }
+
+    @Generated(hash = 1300368422)
+    public TranslationEntity() {
     }
 
     public static class GsonTranslationEntity{

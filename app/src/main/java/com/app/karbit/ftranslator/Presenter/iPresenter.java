@@ -3,6 +3,7 @@ package com.app.karbit.ftranslator.Presenter;
 import com.app.karbit.ftranslator.Model.TranslationEntity;
 import com.app.karbit.ftranslator.View.iService;
 
+import java.util.List;
 import java.util.Observer;
 
 /**
@@ -19,4 +20,6 @@ public interface iPresenter{
     public void getTranslation(TranslationEntity entity);
 
     void getLanguages(Observer observer);
+
+    List<TranslationEntity> getHistory();
 }

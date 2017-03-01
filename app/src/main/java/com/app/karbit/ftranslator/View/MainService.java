@@ -25,6 +25,7 @@ import com.app.karbit.ftranslator.Presenter.PresenterModule;
 import com.app.karbit.ftranslator.Presenter.iPresenter;
 import com.app.karbit.ftranslator.R;
 
+import java.util.List;
 import java.util.Observer;
 
 import javax.inject.Inject;
@@ -104,6 +105,12 @@ public class MainService extends Service implements iService {
         void inject(MainService ms);
     }
 
+    @OnClick(R.id.extended_history)
+    void showHistory(){
+        List<TranslationEntity> entities = presenter.getHistory();
+        showHistoryDialog(entities);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -134,7 +141,18 @@ public class MainService extends Service implements iService {
     }
 
     private void showAdvancedSettings() {
+        MenuDialog dialog = new MenuDialog(getContext(),this);
+        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.show();
+    }
 
+    private void showHistoryDialog(List<TranslationEntity> entities) {
+        HistoryDialog dialog = new HistoryDialog(getContext());
+        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.show();
+        dialog.setData(entities);
     }
 
     private void initView() {

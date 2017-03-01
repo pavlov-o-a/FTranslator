@@ -6,16 +6,8 @@
         <item>es</item>
         <item>fr</item>
         <item>ru</item>
-        <item>ar</item>
-        <item>pt</item>
-        <item>bn</item>
-        <item>hi</item>
-        <item>ja</item>
         <item>de</item>
-        <item>ko</item>
-        <item>zh</item>
         <item>it</item>
-        <item>pl</item>
     </string-array>
 
     <string-array name="languages_full">
@@ -23,15 +15,7 @@
         <item>Spanish</item>
         <item>French</item>
         <item>Russian</item>
-        <item>Arab</item>
-        <item>Portuguese</item>
-        <item>Bengal</item>
-        <item>Hindi</item>
-        <item>Japan</item>
         <item>German</item>
-        <item>Korean</item>
-        <item>Chinese</item>
         <item>Italian</item>
-        <item>Polish</item>
     </string-array>
 </resources>
