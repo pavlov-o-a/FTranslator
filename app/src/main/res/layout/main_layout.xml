@@ -48,20 +48,23 @@
             android:layout_marginBottom="3dp" />
 
         <ImageView
-            android:layout_toRightOf="@id/extended_menu"
-            android:layout_width="50dp"
+            android:src="@drawable/hide_arrow"
+            android:id="@+id/extended_wrap"
+            android:layout_toLeftOf="@+id/extended_hide"
+            android:layout_toStartOf="@+id/extended_hide"
             android:layout_height="30dp"
-            android:background="#777"
-            android:id="@+id/extended_history" />
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:layout_width="50dp" />
 
         <ImageView
             android:src="@drawable/wrap"
-            android:id="@+id/extended_wrap"
+            android:id="@+id/extended_hide"
             android:layout_toLeftOf="@+id/extended_close"
             android:layout_toStartOf="@+id/extended_close"
             android:layout_height="30dp"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp"
             android:layout_width="50dp" />
 
         <ImageView

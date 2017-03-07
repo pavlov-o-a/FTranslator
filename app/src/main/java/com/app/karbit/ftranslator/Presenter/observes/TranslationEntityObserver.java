@@ -1,6 +1,6 @@
 package com.app.karbit.ftranslator.Presenter.observes;
 
-import com.app.karbit.ftranslator.Model.TranslationEntity;
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 import com.app.karbit.ftranslator.Presenter.iObserversInterface;
 
 import io.reactivex.Observer;

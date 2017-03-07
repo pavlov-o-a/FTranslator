@@ -12,7 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.app.karbit.ftranslator.Model.LanguageEntity;
+import com.app.karbit.ftranslator.Model.Entities.LanguageEntity;
 import com.app.karbit.ftranslator.R;
 
 import java.util.ArrayList;
@@ -63,10 +63,10 @@ public class ChooseLanguageDialog extends Dialog implements Observer{
         View layoutView = this.findViewById(android.R.id.content);
         ButterKnife.bind(this,layoutView);
 
-        initLangsArray(languages);
+        initLangsArray();
     }
 
-    private void initLangsArray(ArrayList<LanguageEntity> languages) {
+    private void initLangsArray() {
         service.getLanguages(this);
     }
 
@@ -106,6 +106,20 @@ public class ChooseLanguageDialog extends Dialog implements Observer{
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 fromLanguage = ((LanguageEntity)parent.getAdapter().getItem(position)).getShortName();
+                ArrayList<LanguageEntity> languageEntities = new ArrayList<>();
+                if (languages.size() == 6)//offline mod
+                    if (!fromLanguage.equals("ru") & !fromLanguage.equals("en")){
+                        for (LanguageEntity entity : languages){
+                            if (entity.getShortName().equals("ru") | entity.getShortName().equals("en")){
+                                languageEntities.add(entity);
+                            }
+                        }
+                        spinnerTo.setAdapter(new LanguageAdapter(getContext(),languageEntities));
+                        setSelectedItem(languageEntities);
+                    } else {
+                        spinnerTo.setAdapter(new LanguageAdapter(getContext(),languages));
+                        setSelectedItem(languages);
+                    }
             }
 
             @Override
@@ -124,6 +138,15 @@ public class ChooseLanguageDialog extends Dialog implements Observer{
 
             }
         });
+    }
+
+    private void setSelectedItem(ArrayList<LanguageEntity> languageEntities){
+        for (LanguageEntity languageEntity:languageEntities){
+            if (languageEntity.getShortName().equals(fromLanguage))
+                spinnerFrom.setSelection(languageEntities.indexOf(languageEntity));
+            if (languageEntity.getShortName().equals(toLanguage))
+                spinnerTo.setSelection(languageEntities.indexOf(languageEntity));
+        }
     }
 
     private class LanguageAdapter extends ArrayAdapter<LanguageEntity> {

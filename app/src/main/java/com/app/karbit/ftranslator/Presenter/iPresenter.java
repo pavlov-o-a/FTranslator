@@ -1,6 +1,6 @@
 package com.app.karbit.ftranslator.Presenter;
 
-import com.app.karbit.ftranslator.Model.TranslationEntity;
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 import com.app.karbit.ftranslator.View.iService;
 
 import java.util.List;
@@ -11,15 +11,14 @@ import java.util.Observer;
  */
 
 public interface iPresenter{
-    public String value = "dagger test toast";
 
-    public String getValue();
+    void setBind(iService service);
 
-    public void setBind(iService service);
-
-    public void getTranslation(TranslationEntity entity);
+    void getTranslation(TranslationEntity entity);
 
     void getLanguages(Observer observer);
 
     List<TranslationEntity> getHistory();
+
+    void setIsAlive(boolean isAlive);
 }

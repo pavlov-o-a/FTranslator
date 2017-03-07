@@ -1,7 +1,10 @@
 package com.app.karbit.ftranslator.View;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,7 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.app.karbit.ftranslator.Model.TranslationEntity;
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 import com.app.karbit.ftranslator.Presenter.PresenterModule;
 import com.app.karbit.ftranslator.Presenter.iPresenter;
 import com.app.karbit.ftranslator.R;
@@ -35,6 +38,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import dagger.Component;
 
+import static android.content.ClipDescription.MIMETYPE_TEXT_HTML;
+import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
+
 /**
  * Created by Karbit on 12.02.2017.
  */
@@ -44,13 +50,18 @@ public class MainService extends Service implements iService {
     private View mFloatingView;
     private WindowManager.LayoutParams mParams;
     private boolean isCollapsed = true;
-    private int FOCUS = WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN;
-    private int FREE = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+    private int FOCUS = WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN|WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+    private int FREE = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+    private boolean alwaysWrapMode;
+    private boolean hidedInNotifications = false;
     private int accessCounter = 0;
+    private int screenWidth;
     private String languageFrom;
     private String languageTo;
     private String LANGUAGE_FROM_PREF = "language_from";
     private String LANGUAGE_TO_PREF = "language_to";
+    private String ALWAYS_WRAP = "always_wrap";
+    private String userInputContent;
 
 
     @Inject iPresenter presenter;
@@ -72,6 +83,9 @@ public class MainService extends Service implements iService {
 
     @BindView(R.id.extended_close)
     protected View closeButton;
+
+    @BindView(R.id.extended_hide)
+    protected View hideButton;
 
     @BindView(R.id.extended_from_text)
     protected EditText userInput;
@@ -105,15 +119,11 @@ public class MainService extends Service implements iService {
         void inject(MainService ms);
     }
 
-    @OnClick(R.id.extended_history)
-    void showHistory(){
-        List<TranslationEntity> entities = presenter.getHistory();
-        showHistoryDialog(entities);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
+        SharedPreferences sp = getSharedPreferences("FTRANSLATOR_PREFERENCES",MODE_PRIVATE);
+        screenWidth = sp.getInt("screen_width",480);
         initView();
 
         //dagger initialization
@@ -123,36 +133,51 @@ public class MainService extends Service implements iService {
         presenter.setBind(this);
 
         //foregrounding
-        Notification notification = new Notification.Builder(getContext())
-                .setContentTitle("Ftranslator")
-                .build();
-        startForeground(1445,notification);
+        throwNotification();
 
         //last used language
-        SharedPreferences sp = getSharedPreferences("FTRANSLATOR_PREFERENCES",MODE_PRIVATE);
         setLanguages(sp.getString(LANGUAGE_FROM_PREF,"en"),sp.getString(LANGUAGE_TO_PREF,"de"));
+        alwaysWrapMode = sp.getBoolean(ALWAYS_WRAP,false);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (hidedInNotifications) {//if viewed again from notification
+            initView();
+            setLanguages(languageFrom, languageTo);
+            userInput.setText(userInputContent);
+            hidedInNotifications = false;
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void throwNotification() {
+        Intent notificationIntent = new Intent(getContext(), MainService.class);
+        PendingIntent contentIntent = PendingIntent.getService(getContext(),
+                0, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification notification = new Notification.Builder(getContext())
+                .setSmallIcon(R.drawable.logo_book)
+                .setContentTitle("FTranslator")
+                .setContentIntent(contentIntent)
+                .setContentText("Tap to open FTranslator")
+                .setAutoCancel(true)
+                .build();
+        startForeground(1445,notification);
     }
 
     private void showChooseLanguageDialog(){
-        ChooseLanguageDialog dialog = new ChooseLanguageDialog(getContext(),"en","ru",this);
+        ChooseLanguageDialog dialog = new ChooseLanguageDialog(getContext(),languageFrom,languageTo,this);
         dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.show();
     }
 
     private void showAdvancedSettings() {
-        MenuDialog dialog = new MenuDialog(getContext(),this);
+        MenuDialog dialog = new MenuDialog(getContext(),this,alwaysWrapMode);
         dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.show();
-    }
-
-    private void showHistoryDialog(List<TranslationEntity> entities) {
-        HistoryDialog dialog = new HistoryDialog(getContext());
-        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.show();
-        dialog.setData(entities);
     }
 
     private void initView() {
@@ -164,46 +189,16 @@ public class MainService extends Service implements iService {
         setFocusedWindow(FREE,0,100,false,mFloatingView);
 
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) extendedLayout.getLayoutParams();
-        lp.width = 480;
+        lp.width = screenWidth;
         extendedLayout.setLayoutParams(lp);
 
-        cancelView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                service.stopSelf();
-            }
-        });
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                service.stopSelf();
-            }
-        });
+        cancelView.setOnClickListener(new StopServiceListener(service));
+        closeButton.setOnClickListener(new StopServiceListener(service));
+        hideButton.setOnClickListener(new HideServiceListener());
         mFloatingView.setOnTouchListener(new DragListener());
-        wrapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                extendedLayout.setVisibility(View.GONE);
-                wrappedLayout.setVisibility(View.VISIBLE);
-                isCollapsed = true;
-            }
-        });
+        wrapButton.setOnClickListener(new WrapViewListener());
         //it's needed for showing keyboard
-        userInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setFocusedWindow(FOCUS,mParams.x,mParams.y,true,mFloatingView);
-                userInput.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {      //we have to wait until window will get new params and become focused,
-                        if (userInput != null) {            //before calling keyboard
-                            userInput.requestFocus();
-                            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(userInput, InputMethodManager.SHOW_IMPLICIT);
-                        }
-                    }
-                },500);
-            }
-        });
+        userInput.setOnClickListener(new UserInputListener());
         //translation method
         translate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,7 +211,7 @@ public class MainService extends Service implements iService {
         extendedLayout.setVisibility(View.INVISIBLE);
         userInput.postDelayed(new Runnable() {
             @Override
-            public void run() { //it is needed for userinput got focus. so user mustn't click userinput twice in first time.
+            public void run() { //it is needed for userinput got focus(window become focused). so user mustn't click userinput twice in first time.
                 if (userInput != null) {
                     userInput.requestFocus();
                     extendedLayout.setVisibility(View.GONE);
@@ -228,6 +223,7 @@ public class MainService extends Service implements iService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        presenter.setIsAlive(false);
         if (mFloatingView != null) mWindowManager.removeView(mFloatingView);
     }
 
@@ -236,6 +232,45 @@ public class MainService extends Service implements iService {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+    private void tryLoadDataFromClipBoardManager() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (!(clipboard.hasPrimaryClip())) {
+        } else if (!(clipboard.getPrimaryClipDescription().hasMimeType(MIMETYPE_TEXT_PLAIN) |
+                        clipboard.getPrimaryClipDescription().hasMimeType(MIMETYPE_TEXT_HTML))) {
+        } else {
+            ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+            userInput.setText(item.getText().toString());
+        }
+    }
+
+    private void setFocusedWindow(int flag, int x, int y, boolean isUpdate, View view){
+        ButterKnife.bind(this,mFloatingView);
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                flag,
+                PixelFormat.TRANSLUCENT);
+
+        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.x = x;
+        params.y = y;
+        mParams = params;
+        if (isUpdate) {
+            mWindowManager.updateViewLayout(view, params);
+        }
+        else {
+            mWindowManager.addView(view, params);
+        }
+        if (flag == FREE){
+            accessCounter ++;
+        } else {
+            accessCounter = 0;
+        }
+    }
+
+    // ---------- click listeners --------------
 
     public class DragListener implements View.OnTouchListener{
         private int initialX;
@@ -268,7 +303,16 @@ public class MainService extends Service implements iService {
                             wrappedLayout.setVisibility(View.GONE);
                             extendedLayout.setVisibility(View.VISIBLE);
                             isCollapsed = false;
+                            if (alwaysWrapMode)
+                                tryLoadDataFromClipBoardManager();
                         }
+                    }
+                    return true;
+                case MotionEvent.ACTION_OUTSIDE:
+                    if (!isCollapsed && alwaysWrapMode){
+                        extendedLayout.setVisibility(View.GONE);
+                        wrappedLayout.setVisibility(View.VISIBLE);
+                        isCollapsed = true;
                     }
                     return true;
             }
@@ -276,29 +320,55 @@ public class MainService extends Service implements iService {
         }
     }
 
-    private void setFocusedWindow(int flag, int x, int y, boolean isUpdate, View view){
-        ButterKnife.bind(this,mFloatingView);
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                flag,
-                PixelFormat.TRANSLUCENT);
+    private class StopServiceListener implements View.OnClickListener{
+        private Service service;
 
-        params.gravity = Gravity.TOP | Gravity.LEFT;
-        params.x = x;
-        params.y = y;
-        mParams = params;
-        if (isUpdate) {
-            mWindowManager.updateViewLayout(view, params);
+        public StopServiceListener(Service service){
+            this.service = service;
         }
-        else {
-            mWindowManager.addView(view, params);
+
+        @Override
+        public void onClick(View v) {
+            service.stopSelf();
         }
-        if (flag == FREE){
-            accessCounter ++;
-        } else {
-            accessCounter = 0;
+    }
+
+    private class HideServiceListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            throwNotification();
+            userInputContent = userInput.getText().toString();
+            hidedInNotifications = true;
+            isCollapsed = true;
+            mWindowManager.removeViewImmediate(mFloatingView);
+        }
+    }
+
+    private class WrapViewListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            extendedLayout.setVisibility(View.GONE);
+            wrappedLayout.setVisibility(View.VISIBLE);
+            isCollapsed = true;
+        }
+    }
+
+    private class UserInputListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            setFocusedWindow(FOCUS,mParams.x,mParams.y,true,mFloatingView);
+            userInput.postDelayed(new Runnable() {
+                @Override
+                public void run() {      //we have to wait until window will get new params and become focused,
+                    if (userInput != null) {            //before calling keyboard
+                        userInput.requestFocus();
+                        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(userInput, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }
+            },500);
         }
     }
 
@@ -330,5 +400,20 @@ public class MainService extends Service implements iService {
     @Override
     public void getLanguages(Observer observer) {
         presenter.getLanguages(observer);
+    }
+
+    public void showHistoryDialog() {
+        List<TranslationEntity> entities = presenter.getHistory();
+        HistoryDialog dialog = new HistoryDialog(getContext());
+        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.show();
+        dialog.setData(entities);
+    }
+
+    @Override
+    public void setAlwaysWrapMode(boolean alwaysWrap) {
+        this.alwaysWrapMode = alwaysWrap;
+        getSharedPreferences("FTRANSLATOR_PREFERENCES",MODE_PRIVATE).edit().putBoolean(ALWAYS_WRAP,alwaysWrap).apply();
     }
 }

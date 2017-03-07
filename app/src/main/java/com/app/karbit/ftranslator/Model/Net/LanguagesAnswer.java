@@ -1,5 +1,6 @@
-package com.app.karbit.ftranslator.Model;
+package com.app.karbit.ftranslator.Model.Net;
 
+import com.app.karbit.ftranslator.Model.Entities.LanguageEntity;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

@@ -1,4 +1,6 @@
-package com.app.karbit.ftranslator.Model;
+package com.app.karbit.ftranslator.Model.Net;
+
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 
 import retrofit2.Call;
 import retrofit2.http.POST;

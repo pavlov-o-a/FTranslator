@@ -1,4 +1,4 @@
-package com.app.karbit.ftranslator.Model;
+package com.app.karbit.ftranslator.Model.Entities;
 
 /**
  * Created by Karbit on 28.02.2017.

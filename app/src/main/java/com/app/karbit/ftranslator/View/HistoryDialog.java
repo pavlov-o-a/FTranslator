@@ -7,11 +7,12 @@ import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.app.karbit.ftranslator.Model.TranslationEntity;
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 import com.app.karbit.ftranslator.R;
 
 import java.util.List;
@@ -54,6 +55,8 @@ public class HistoryDialog extends Dialog {
             ((TextView)convertView.findViewById(R.id.history_text_from)).setText(getItem(position).getFromText());
             ((TextView)convertView.findViewById(R.id.history_text_to)).setText(getItem(position).getToText());
             ((TextView)convertView.findViewById(R.id.history_languages)).setText(getItem(position).getFromLanguage() + "-" + getItem(position).getToLanguage());
+            ListView.LayoutParams lp = new AbsListView.LayoutParams(layoutView.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT);
+            convertView.setLayoutParams(lp);
             return convertView;
         }
     }

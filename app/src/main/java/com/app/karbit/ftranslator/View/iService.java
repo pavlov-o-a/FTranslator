@@ -2,7 +2,7 @@ package com.app.karbit.ftranslator.View;
 
 import android.content.Context;
 
-import com.app.karbit.ftranslator.Model.TranslationEntity;
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 
 import java.util.Observer;
 
@@ -19,4 +19,8 @@ public interface iService {
     void setLanguages(String languageFrom, String languageTo);
 
     void getLanguages(Observer observer);
+
+    void showHistoryDialog();
+
+    void setAlwaysWrapMode(boolean alwaysWrap);
 }

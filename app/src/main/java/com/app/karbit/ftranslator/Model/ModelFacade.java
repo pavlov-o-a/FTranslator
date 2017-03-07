@@ -2,6 +2,12 @@ package com.app.karbit.ftranslator.Model;
 
 import android.content.Context;
 
+import com.app.karbit.ftranslator.Model.Entities.LanguageEntity;
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
+import com.app.karbit.ftranslator.Model.Managers.DataManager;
+import com.app.karbit.ftranslator.Model.Managers.OfflineDictsManager;
+import com.app.karbit.ftranslator.Model.Managers.TranslationManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +41,6 @@ public class ModelFacade {
     }
 
     public void translateOffline(TranslationEntity entity, int idResource, Context context, Observer<TranslationEntity> subscriber) {
-        OfflineDictsManager.odm.translateOfline(entity,idResource,context,subscriber);
+        OfflineDictsManager.odm.translateOffline(entity,idResource,context,subscriber);
     }
 }

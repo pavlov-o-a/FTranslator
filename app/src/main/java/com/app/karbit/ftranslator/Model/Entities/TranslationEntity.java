@@ -1,4 +1,4 @@
-package com.app.karbit.ftranslator.Model;
+package com.app.karbit.ftranslator.Model.Entities;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

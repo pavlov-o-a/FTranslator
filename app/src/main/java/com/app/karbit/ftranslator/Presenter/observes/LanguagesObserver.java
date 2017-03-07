@@ -1,6 +1,6 @@
 package com.app.karbit.ftranslator.Presenter.observes;
 
-import com.app.karbit.ftranslator.Model.LanguageEntity;
+import com.app.karbit.ftranslator.Model.Entities.LanguageEntity;
 import com.app.karbit.ftranslator.Presenter.iObserversInterface;
 
 import java.util.ArrayList;

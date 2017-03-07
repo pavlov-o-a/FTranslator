@@ -1,7 +1,7 @@
 package com.app.karbit.ftranslator.Presenter;
 
-import com.app.karbit.ftranslator.Model.LanguageEntity;
-import com.app.karbit.ftranslator.Model.TranslationEntity;
+import com.app.karbit.ftranslator.Model.Entities.LanguageEntity;
+import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 
 import java.util.ArrayList;
 

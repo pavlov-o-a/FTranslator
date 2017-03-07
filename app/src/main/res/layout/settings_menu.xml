@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/menu_history"
         android:gravity="center_horizontal"
-        android:layout_margin="5dp"/>
+        android:layout_margin="5dp"
+        android:textColor="#000"/>
 
     <ImageView
         android:layout_width="match_parent"
@@ -24,7 +25,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/menu_favourite"
         android:gravity="center_horizontal"
-        android:layout_margin="5dp"/>
+        android:layout_margin="5dp"
+        android:textColor="#000"/>
 
     <ImageView
         android:layout_width="match_parent"
@@ -33,12 +35,13 @@
         android:background="#999"/>
 
     <Switch
-        android:text="Ofline mod"
+        android:text="Always wrap mod"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/menu_ofline_mod"
-        android:gravity="center_horizontal"
-        android:layout_margin="5dp"/>
+        android:id="@+id/always_wrap_mod"
+        android:gravity="center"
+        android:layout_margin="5dp"
+        android:textColor="#000"/>
 
     <ImageView
         android:layout_width="match_parent"
@@ -52,5 +55,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/menu_about"
         android:gravity="center_horizontal"
-        android:layout_margin="5dp"/>
+        android:layout_margin="5dp"
+        android:textColor="#000"/>
 </LinearLayout>
