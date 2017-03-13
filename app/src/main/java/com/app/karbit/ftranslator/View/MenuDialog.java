@@ -17,7 +17,7 @@ import butterknife.OnClick;
  */
 
 public class MenuDialog extends Dialog {
-    iService service;
+    private iService service;
     private boolean alwaysWrap = false;
 
     @OnClick(R.id.menu_history)

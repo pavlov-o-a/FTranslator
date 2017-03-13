@@ -2,8 +2,8 @@ package com.app.karbit.ftranslator.Model.Managers;
 
 import android.content.Context;
 
-import com.app.karbit.ftranslator.Model.DaoMaster;
-import com.app.karbit.ftranslator.Model.DaoSession;
+import com.app.karbit.ftranslator.Model.Entities.DaoMaster;
+import com.app.karbit.ftranslator.Model.Entities.DaoSession;
 import com.app.karbit.ftranslator.Model.Entities.TranslationEntity;
 
 import org.greenrobot.greendao.database.Database;

@@ -24,9 +24,9 @@ import javax.inject.Inject;
  */
 
 public class Presenter implements iPresenter, iObserversInterface{
-    iService service;
-    ModelFacade modelFacade;
-    Observer languagesDialogObserver;
+    private iService service;
+    private ModelFacade modelFacade;
+    private Observer languagesDialogObserver;
     private boolean isAlive = true;
 
     @Inject public Presenter(ModelFacade modelFacade){
@@ -55,7 +55,7 @@ public class Presenter implements iPresenter, iObserversInterface{
         languagesDialogObserver = observer;
         if (isInternetAvailable()) {
             LanguagesObserver lo = new LanguagesObserver(this);
-            modelFacade.getLanguages(lo, Locale.getDefault().getDisplayLanguage());
+            modelFacade.getLanguages(lo, Locale.getDefault().getISO3Language());
         }
         else
             showLanguages(null);
@@ -73,7 +73,7 @@ public class Presenter implements iPresenter, iObserversInterface{
 
     // ------------------------
 
-    public boolean isInternetAvailable() {
+    private boolean isInternetAvailable() {
         ConnectivityManager cm =
                 (ConnectivityManager) service.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();

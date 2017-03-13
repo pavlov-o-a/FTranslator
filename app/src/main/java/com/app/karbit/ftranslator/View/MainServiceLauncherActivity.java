@@ -86,10 +86,8 @@ public class MainServiceLauncherActivity extends AppCompatActivity {
 
     private void createAndShowDialog(){
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle("Dear user");
-        dialogBuilder.setMessage("App needs some permission for properly work.\t"+
-                "It needs System_Alert_Window permission to show itself above all other" +
-                " apps cause its kind of design. you will love it!");
+        dialogBuilder.setTitle(R.string.user_asking_label);
+        dialogBuilder.setMessage(R.string.user_asking_permission);
         dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

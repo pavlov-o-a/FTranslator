@@ -160,7 +160,7 @@ public class MainService extends Service implements iService {
                 .setSmallIcon(R.drawable.logo_book)
                 .setContentTitle("FTranslator")
                 .setContentIntent(contentIntent)
-                .setContentText("Tap to open FTranslator")
+                .setContentText(getContext().getResources().getString(R.string.notification_tap))
                 .setAutoCancel(true)
                 .build();
         startForeground(1445,notification);
@@ -272,7 +272,7 @@ public class MainService extends Service implements iService {
 
     // ---------- click listeners --------------
 
-    public class DragListener implements View.OnTouchListener{
+    private class DragListener implements View.OnTouchListener{
         private int initialX;
         private int initialY;
         private float initialTouchX;

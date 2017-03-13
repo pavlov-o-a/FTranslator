@@ -13,7 +13,7 @@ import io.reactivex.disposables.Disposable;
  */
 
 public class LanguagesObserver implements Observer<ArrayList<LanguageEntity>> {
-    iObserversInterface ioInterface;
+    private iObserversInterface ioInterface;
 
     public LanguagesObserver(iObserversInterface ioInterface){
         this.ioInterface = ioInterface;

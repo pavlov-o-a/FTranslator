@@ -18,4 +18,14 @@
         <item>German</item>
         <item>Italian</item>
     </string-array>
+    <string name="menu_history_label">History</string>
+    <string name="menu_awmode_label">Always wrap</string>
+    <string name="menu_about_label">About</string>
+    <string name="notification_tap">Tap to open app</string>
+    <string name="choose_language_label">Choose languages to translate</string>
+    <string name="choose_language_from_label">from</string>
+    <string name="choose_language_to_label">to</string>
+    <string name="main_start_label">Start use</string>
+    <string name="user_asking_permission">App needs a permission for properly work. It needs "Drawing over other apps" permission to show itself above all other apps because its a point of app. This app doesnt steel your data. You can assure in that by studying open source code. Turn it on, please.</string>
+    <string name="user_asking_label">Dear user</string>
 </resources>

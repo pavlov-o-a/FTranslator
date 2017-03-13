@@ -11,7 +11,7 @@ import io.reactivex.disposables.Disposable;
  */
 
 public class TranslationEntityObserver implements Observer<TranslationEntity> {
-    iObserversInterface ioInterface;
+    private iObserversInterface ioInterface;
 
     public TranslationEntityObserver(iObserversInterface ioInterface){
         this.ioInterface = ioInterface;

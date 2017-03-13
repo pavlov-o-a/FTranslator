@@ -10,7 +10,7 @@
         android:id="@+id/textView" />
 
     <Button
-        android:text="start!"
+        android:text="@string/main_start_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/start_service_button" />

@@ -9,9 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="15dp"
         android:layout_marginBottom="13dp"
-        android:text="Choose languages to translate:"
+        android:text="@string/choose_language_label"
         android:textColor="#777"/>
 
     <ImageView
@@ -36,7 +37,7 @@
             android:layout_weight="1">
 
             <TextView
-                android:text="from"
+                android:text="@string/choose_language_from_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
@@ -58,7 +59,7 @@
             android:layout_weight="1">
 
             <TextView
-                android:text="to"
+                android:text="@string/choose_language_to_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
@@ -81,8 +82,10 @@
         android:text="OK"
         android:layout_below="@id/languages_conteiner"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginBottom="10dp"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"/>
 
     <RelativeLayout
         android:id="@+id/progress_bar_conteiner"
